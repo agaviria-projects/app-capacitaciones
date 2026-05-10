@@ -60,36 +60,37 @@ div[class*="deployButton"] {
 /* Títulos centrados */
 .titulo-principal {
     text-align: center;
-    font-size: 34px;
+    font-size: 27px;
     font-weight: 800;
     line-height: 1.15;
     margin-bottom: 24px;
-    color: #1e293b;
+    color: #1e293b !important;
 }
 
 .titulo-formacion {
     text-align: center;
-    font-size: 25px;
+    font-size: 22px;
     font-weight: 800;
     line-height: 1.2;
     margin-bottom: 8px;
-    color: #1e293b;
+    color: #1e293b !important;
 }
 
 .info-formacion {
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     margin-bottom: 8px;
+    color: #1e293b !important;       
 }
 
 /* Celular */
 @media (max-width: 600px) {
-    .block-container {
-        max-width: 100% !important;
-        padding-top: 1.5rem !important;
-        padding-left: 1rem !important;
-        padding-right: 1rem !important;
+    .titulo-principal,
+    .titulo-formacion,
+    .info-formacion {
+        color: #ffffff !important;
     }
+}
 
     .titulo-principal {
         font-size: 27px !important;
@@ -103,9 +104,29 @@ div[class*="deployButton"] {
         font-size: 14px !important;
     }
 }
+
+.badge-cover {
+    position: fixed !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 240px !important;
+    height: 80px !important;
+    background: #ffffff !important;
+    z-index: 2147483647 !important;
+    pointer-events: auto !important;
+}
+
+@media (max-width: 600px) {
+    .badge-cover {
+        width: 150px !important;
+        height: 55px !important;
+        background: #0e1117 !important;
+    }
+}
+                                  
 </style>
 """, unsafe_allow_html=True)
-
+st.markdown('<div class="badge-cover"></div>', unsafe_allow_html=True) 
 # =========================================
 # 🔗 OBTENER ID FORMACIÓN DESDE URL
 # =========================================
