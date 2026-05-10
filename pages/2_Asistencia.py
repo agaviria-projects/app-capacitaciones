@@ -273,6 +273,43 @@ label,
 
     pointer-events: auto !important;
 }
+/* =========================================================
+   🔥 CAMUFLAR BADGES STREAMLIT
+========================================================= */
+
+/* GitHub card */
+
+iframe,
+iframe * {
+
+    opacity: 0.03 !important;
+
+    filter: brightness(0) !important;
+
+    transition: none !important;
+}
+
+/* Elementos flotantes inferiores */
+
+div[style*="position: fixed"],
+div[style*="bottom"] {
+
+    opacity: 0.05 !important;
+
+    filter: brightness(0) !important;
+
+    transition: none !important;
+}
+
+/* Links badge */
+
+a[href*="streamlit"],
+a[href*="github"] {
+
+    opacity: 0.03 !important;
+
+    filter: brightness(0) !important;
+}            
 </style>
 """, unsafe_allow_html=True)
 
