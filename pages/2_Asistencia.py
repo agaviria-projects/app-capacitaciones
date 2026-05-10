@@ -1,6 +1,6 @@
 import streamlit as st
 from sqlalchemy import text
-from utils.db import engine
+from utils.db import get_connection
 
 st.set_page_config(
     page_title="Registro Asistencia",
@@ -9,8 +9,54 @@ st.set_page_config(
 )
 
 st.title("📋 Registro de Asistencia")
+st.markdown("""
+<style>
+/* Ocultar menú superior Streamlit */
+#MainMenu {
+    visibility: hidden;
+}
 
-# Obtener id de formación desde la URL
+/* Ocultar footer */
+footer {
+    visibility: hidden;
+}
+
+/* Ocultar botón Deploy / Streamlit */
+.stDeployButton {
+    display: none !important;
+}
+
+/* Ocultar toolbar superior */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* Ocultar header visual */
+[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* Mejorar espacio superior */
+.block-container {
+    padding-top: 1.2rem;
+}
+
+/* Título de formación en una sola línea cuando sea posible */
+.titulo-formacion {
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =========================================
+# 🔗 OBTENER ID FORMACIÓN DESDE URL
+# =========================================
+
 params = st.query_params
 id_formacion = params.get("formacion")
 
@@ -19,16 +65,32 @@ if not id_formacion:
     st.info("Ingrese desde el enlace generado por el formador.")
     st.stop()
 
-# Consultar formación
-with engine.begin() as conn:
-    formacion = conn.execute(
-        text("""
-            SELECT id, nombre_formacion, fecha_asistencia, formador
-            FROM formaciones
-            WHERE id = :id
-        """),
-        {"id": int(id_formacion)}
-    ).fetchone()
+# =========================================
+# 📚 CONSULTAR FORMACIÓN
+# =========================================
+
+try:
+
+    with get_connection() as conn:
+
+        formacion = conn.execute(
+            text("""
+                SELECT id, nombre_formacion, fecha_asistencia, formador
+                FROM formaciones
+                WHERE id = :id
+            """),
+            {"id": int(id_formacion)}
+        ).fetchone()
+
+except Exception:
+
+    st.error("""
+    ⚠️ No fue posible conectar con el sistema.
+
+    Contacte al administrador.
+    """)
+
+    st.stop()
 
 if not formacion:
     st.error("❌ Formación no encontrada.")
@@ -39,28 +101,56 @@ nombre_formacion = formacion[1]
 fecha_asistencia = formacion[2]
 formador = formacion[3]
 
-st.markdown(f"### 📚 {nombre_formacion}")
+# =========================================
+# 🖥️ MOSTRAR INFORMACIÓN
+# =========================================
+
+st.markdown(
+    f'<div class="titulo-formacion">📚 {nombre_formacion}</div>',
+    unsafe_allow_html=True
+)
+
 st.write(f"📅 Fecha: **{fecha_asistencia}**")
 st.write(f"👨‍🏫 Formador: **{formador}**")
+
 st.divider()
+
+# =========================================
+# 👤 CONSULTA EMPLEADO
+# =========================================
 
 cedula = st.text_input("Digite su cédula")
 
 empleado = None
 
 if cedula:
-    with engine.begin() as conn:
-        empleado = conn.execute(
-            text("""
-                SELECT nombre_completo, cargo, proyecto, zona
-                FROM empleados
-                WHERE cedula = :cedula
-                AND estado = 'ACTIVO'
-            """),
-            {"cedula": cedula.strip()}
-        ).fetchone()
+
+    try:
+
+        with get_connection() as conn:
+
+            empleado = conn.execute(
+                text("""
+                    SELECT nombre_completo, cargo, proyecto, zona
+                    FROM empleados
+                    WHERE cedula = :cedula
+                    AND estado = 'ACTIVO'
+                """),
+                {"cedula": cedula.strip()}
+            ).fetchone()
+
+    except Exception:
+
+        st.error("""
+        ⚠️ No fue posible consultar la información.
+
+        Contacte al administrador.
+        """)
+
+        st.stop()
 
     if empleado:
+
         nombre_completo = empleado[0]
         cargo = empleado[1]
         proyecto = empleado[2]
@@ -68,13 +158,39 @@ if cedula:
 
         st.success("✅ Empleado encontrado")
 
-        st.text_input("Nombre completo", value=nombre_completo, disabled=True)
-        st.text_input("Cargo", value=cargo, disabled=True)
-        st.text_input("Proyecto", value=proyecto, disabled=True)
-        st.text_input("Zona", value=zona or "", disabled=True)
+        st.text_input(
+            "Nombre completo",
+            value=nombre_completo,
+            disabled=True
+        )
+
+        st.text_input(
+            "Cargo",
+            value=cargo,
+            disabled=True
+        )
+
+        st.text_input(
+            "Proyecto",
+            value=proyecto,
+            disabled=True
+        )
+
+        st.text_input(
+            "Zona",
+            value=zona or "",
+            disabled=True
+        )
 
     else:
-        st.error("❌ Cédula no encontrada. Verifique el número ingresado.")
+
+        st.error(
+            "❌ Cédula no encontrada. Verifique el número ingresado."
+        )
+
+# =========================================
+# 📋 FORMULARIO
+# =========================================
 
 clasificacion = st.radio(
     "Clasificación de formación",
@@ -91,20 +207,37 @@ autoriza_datos = st.radio(
     ["Sí", "No"]
 )
 
+# =========================================
+# 💾 REGISTRAR ASISTENCIA
+# =========================================
+
 if st.button("Enviar asistencia", use_container_width=True):
 
     if not cedula:
+
         st.warning("⚠️ Debe ingresar la cédula.")
 
     elif not empleado:
-        st.error("❌ No se puede registrar. La cédula no existe o está inactiva.")
+
+        st.error("""
+        ❌ No se puede registrar.
+
+        La cédula no existe o está inactiva.
+        """)
 
     elif autoriza_datos == "No":
-        st.error("❌ Para registrar la asistencia debe autorizar el tratamiento de datos.")
+
+        st.error("""
+        ❌ Para registrar la asistencia debe autorizar
+        el tratamiento de datos.
+        """)
 
     else:
+
         try:
-            with engine.begin() as conn:
+
+            with get_connection() as conn:
+
                 conn.execute(
                     text("""
                         INSERT INTO asistencias (
@@ -146,10 +279,27 @@ if st.button("Enviar asistencia", use_container_width=True):
                     }
                 )
 
-            st.success("✅ Asistencia registrada correctamente.")
+            st.success(
+                "✅ Asistencia registrada correctamente."
+            )
 
         except Exception as e:
-            if "unique" in str(e).lower() or "duplicate" in str(e).lower():
-                st.warning("⚠️ Esta cédula ya registró asistencia para esta formación.")
+
+            if (
+                "unique" in str(e).lower()
+                or
+                "duplicate" in str(e).lower()
+            ):
+
+                st.warning("""
+                ⚠️ Esta cédula ya registró asistencia
+                para esta formación.
+                """)
+
             else:
-                st.error(f"❌ Error al registrar asistencia: {e}")
+
+                st.error("""
+                ⚠️ No fue posible registrar la asistencia.
+
+                Contacte al administrador.
+                """)

@@ -1,14 +1,30 @@
-import os
-from dotenv import load_dotenv
+import streamlit as st
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.engine import make_url
 
-load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+# =========================================
+# 🔥 LEER DATABASE_URL DESDE STREAMLIT SECRETS
+# =========================================
 
-if not DATABASE_URL:
-    raise ValueError("❌ No se encontró DATABASE_URL en el archivo .env")
+DATABASE_URL = st.secrets["DATABASE_URL"]
+
+
+# =========================================
+# 🔍 DEBUG TEMPORAL (ELIMINAR DESPUÉS)
+# =========================================
+
+url_debug = make_url(DATABASE_URL)
+
+st.sidebar.success("✅ Host actual DB:")
+st.sidebar.code(url_debug.host)
+
+
+# =========================================
+# 🔥 ENGINE SQLALCHEMY
+# =========================================
 
 engine = create_engine(
     DATABASE_URL,
@@ -17,21 +33,33 @@ engine = create_engine(
 )
 
 
+# =========================================
+# 🔌 OBTENER CONEXIÓN
+# =========================================
+
 def get_connection():
     """
-    Retorna una conexión activa a Supabase/PostgreSQL.
+    Retorna una conexión activa PostgreSQL/Supabase.
     """
     return engine.connect()
 
 
+# =========================================
+# 🧪 PRUEBA DE CONEXIÓN
+# =========================================
+
 def probar_conexion():
-    """
-    Prueba rápida para validar conexión con la base de datos.
-    """
+
     try:
+
         with get_connection() as conn:
-            resultado = conn.execute(text("SELECT 1 AS prueba"))
+
+            resultado = conn.execute(
+                text("SELECT 1 AS prueba")
+            )
+
             return resultado.fetchone()[0] == 1
-    except SQLAlchemyError as e:
-        print(f"Error de conexión: {e}")
+
+    except SQLAlchemyError:
+
         return False
