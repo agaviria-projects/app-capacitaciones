@@ -3,7 +3,6 @@ from io import BytesIO
 
 import pandas as pd
 import streamlit as st
-from dotenv import load_dotenv
 from sqlalchemy import text
 from utils.db import engine
 
@@ -16,19 +15,77 @@ from openpyxl.utils import get_column_letter
 # =========================
 # CONFIGURACIÓN INICIAL
 # =========================
-load_dotenv()
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
-
 st.set_page_config(page_title="Panel Admin", layout="wide")
-st.title("🔐 Panel Administrador")
 
-password = st.text_input("Ingrese contraseña admin", type="password")
+st.markdown("""
+<style>
 
-if password != ADMIN_PASSWORD:
-    st.warning("⚠️ Ingrese contraseña admin")
+/* Ocultar menú streamlit */
+#MainMenu {
+    visibility: hidden;
+}
+
+/* Ocultar footer */
+footer {
+    visibility: hidden;
+}
+
+/* Ocultar botón deploy */
+.stDeployButton {
+    display: none !important;
+}
+
+/* Ocultar toolbar */
+[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* Espacio superior */
+.block-container {
+        padding-top: 3rem !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<h1 style="margin-top:10px; margin-bottom:25px;">
+🔐 Panel Administrador
+</h1>
+""", unsafe_allow_html=True)
+
+# =========================================
+# 🔐 CONTROL DE ACCESO ADMIN
+# =========================================
+
+ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
+
+if "admin_autenticado" not in st.session_state:
+    st.session_state.admin_autenticado = False
+
+if not st.session_state.admin_autenticado:
+
+    password = st.text_input(
+        "Ingrese contraseña admin",
+        type="password"
+    )
+
+    if password:
+
+        if password == ADMIN_PASSWORD:
+
+            st.session_state.admin_autenticado = True
+            st.rerun()
+
+        else:
+
+            st.error("❌ Contraseña incorrecta")
+
+    else:
+
+        st.warning("⚠️ Ingrese contraseña admin")
+
     st.stop()
-
-st.success("✅ Acceso autorizado")
 
 tab_formacion, tab_empleados, tab_asistencias = st.tabs(
     [
