@@ -2,25 +2,12 @@ import streamlit as st
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.engine import make_url
-
 
 # =========================================
 # 🔥 LEER DATABASE_URL DESDE STREAMLIT SECRETS
 # =========================================
 
 DATABASE_URL = st.secrets["DATABASE_URL"]
-
-
-# =========================================
-# 🔍 DEBUG TEMPORAL (ELIMINAR DESPUÉS)
-# =========================================
-
-url_debug = make_url(DATABASE_URL)
-
-st.sidebar.success("✅ Host actual DB:")
-st.sidebar.code(url_debug.host)
-
 
 # =========================================
 # 🔥 ENGINE SQLALCHEMY
