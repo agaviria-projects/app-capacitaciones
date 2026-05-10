@@ -10,7 +10,15 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* Ocultar elementos nativos */
+
+html, body, [class*="css"] {
+    overflow-x: hidden !important;
+}
+            
+/* =========================================================
+   OCULTAR ELEMENTOS NATIVOS STREAMLIT
+========================================================= */
+
 #MainMenu,
 footer,
 header,
@@ -24,12 +32,18 @@ header,
     height: 0 !important;
 }
 
-/* Ocultar sidebar */
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
 section[data-testid="stSidebar"] {
     display: none !important;
 }
 
-/* Ocultar badges por selector */
+/* =========================================================
+   BADGES STREAMLIT CLOUD
+========================================================= */
+
 a[href*="streamlit.io"],
 a[href*="github.com"],
 div[class*="viewerBadge"],
@@ -37,89 +51,166 @@ div[class*="statusWidget"],
 div[class*="deployButton"],
 div[class*="stToolbar"],
 div[class*="stDecoration"] {
+
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
+
     pointer-events: none !important;
+
+    height: 0 !important;
+    width: 0 !important;
 }
 
-/* Contenedor */
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+========================================================= */
+
 .block-container {
+
     max-width: 680px !important;
+
     padding-top: 2rem !important;
     padding-left: 1.2rem !important;
     padding-right: 1.2rem !important;
+
+    /* 🔥 ESPACIO INFERIOR */
+    padding-bottom: 170px !important;
+
     margin: auto !important;
 }
 
-/* Títulos PC */
+/* =========================================================
+   TÍTULOS
+========================================================= */
+
 .titulo-principal {
+
     text-align: center;
+
     font-size: 27px;
     font-weight: 800;
+
     line-height: 1.15;
+
     margin-bottom: 24px;
+
     color: #1e293b !important;
 }
 
 .titulo-formacion {
+
     text-align: center;
+
     font-size: 22px;
     font-weight: 800;
+
     line-height: 1.2;
+
     margin-bottom: 8px;
+
     color: #1e293b !important;
 }
 
 .info-formacion {
+
     text-align: center;
+
     font-size: 14px;
+
     margin-bottom: 8px;
+
     color: #1e293b !important;
 }
 
-/* Trampa visual para tapar badges */
-.badge-cover {
-    position: fixed !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 240px !important;
-    height: 80px !important;
-    background: #ffffff !important;
-    z-index: 2147483647 !important;
-    pointer-events: auto !important;
+/* =========================================================
+   MÁS ESPACIO PARA BOTÓN
+========================================================= */
+
+.stButton {
+
+    margin-top: 20px !important;
+    margin-bottom: 40px !important;
+
+    position: relative !important;
+
+    z-index: 99999999 !important;
 }
 
-/* Celular */
+/* =========================================================
+   TRAMPA VISUAL BADGE
+========================================================= */
+
+.badge-cover {
+
+    position: fixed !important;
+
+    left: 0 !important;
+    bottom: 0 !important;
+
+    width: 100vw !important;
+    height: 90px !important;
+
+    background: #0e1117 !important;
+
+    z-index: 999999999 !important;
+
+    pointer-events: none !important;
+
+    border-top: 1px solid #111827;
+}
+
+/* =========================================================
+   MODO MÓVIL
+========================================================= */
+
 @media (max-width: 600px) {
+
     .block-container {
+
         max-width: 100% !important;
+
         padding-top: 1.5rem !important;
         padding-left: 1rem !important;
         padding-right: 1rem !important;
+
+        /* 🔥 MÁS ESPACIO EN CELULAR */
+        padding-bottom: 220px !important;
     }
 
     .titulo-principal {
+
         font-size: 27px !important;
         color: #ffffff !important;
     }
 
     .titulo-formacion {
+
         font-size: 22px !important;
         color: #ffffff !important;
     }
 
     .info-formacion {
+
         font-size: 14px !important;
         color: #ffffff !important;
     }
 
     .badge-cover {
-        width: 135px !important;
-        height: 55px !important;
+
+        width: 100vw !important;
+
+        height: 110px !important;
+
         background: #0e1117 !important;
     }
+
+    .stButton {
+
+        margin-bottom: 60px !important;
+    }
 }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -382,3 +473,5 @@ if st.button("Enviar asistencia", use_container_width=True):
 
                 Contacte al administrador.
                 """)
+
+        st.markdown("<br><br><br><br>", unsafe_allow_html=True)
